@@ -1,6 +1,9 @@
 from django.db import models
 
 # Create your models here.
+from account.models import MyUser
+
+
 class Category(models.Model):
     slug = models.SlugField(max_length=55,primary_key=True)
     name = models.CharField(max_length=55,unique=True)
@@ -25,6 +28,7 @@ class Product(models.Model):
         ('in stock', 'В наличии'),
         ('out of stock', 'Нет в наличии')
     )
+    author = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='products')
 
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True,null=True)
@@ -37,7 +41,7 @@ class Product(models.Model):
         return self.name
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ('created',)
 
 
 class ProductImage(models.Model):

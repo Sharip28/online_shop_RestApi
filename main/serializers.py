@@ -31,17 +31,45 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source='author.email')
+
     created = serializers.DateTimeField(format="%d %B %Y %H:%M", read_only=True)
     images = ProductImageSerializer(many=True,read_only=True)
 
     class Meta:
         model = Product
-        fields = '__all__'
+        # fields = ('id','name','price','category','description','status','created','images')
+        fields = "__all__"
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        images_data = request.FILES
+        author = request.user
+        # print(author)
+        product = Product.objects.create(**validated_data,
+            author=author
+        )
+        for image in images_data.getlist('images'):
+            ProductImage.objects.create(product=product,
+                                       image=image)
+        return product
+
+    def update(self,instance,validated_data):
+        request = self.context.get('request')
+        for key,value in validated_data.items():
+            setattr(instance,key,value)
+        instance.images.all().delete()
+        images_data = request.FILES
+        for image in images_data.getlist('images'):
+            ProductImage.objects.create(
+                product=instance,image=image
+            )
+        return instance
 
     def to_representation(self, instance):
         representation = super(ProductSerializer,self).to_representation(instance)
-        # representation['images'] = ProductImageSerializer(instance.images.all(),
-        #                                                  many=True,context=self.context).data
+        representation['images'] = ProductImageSerializer(instance.images.all(),
+                                                         many=True,context=self.context).data
         return representation
 
 
