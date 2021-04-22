@@ -2,15 +2,16 @@ from django.db.models import Q
 from django.shortcuts import render
 
 # Create your views here.
-from rest_framework import generics, viewsets, status
+from rest_framework import generics, viewsets, status, mixins
 from rest_framework.decorators import api_view, action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Category, Product, ProductImage
+from .models import Category, Product, ProductImage, Comment, Like, Review
 from .permissions import IsAuthorPermission
-from .serializers import CategorySerializer, ProductSerializer, ProductImageSerializer
+from .serializers import CategorySerializer, ProductSerializer, ProductImageSerializer, CommentSerializer, \
+    LikeSerializer
 
 
 class PermissionMixin:
@@ -23,6 +24,19 @@ class PermissionMixin:
             permissions = []
         return [permission() for permission in permissions]
 
+
+class PermissionMixinComment:
+    def get_permissions(self):
+        if self.action == 'create':
+            permissions = [IsAuthenticated, ]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            permissions = [IsAuthorPermission, IsAuthenticated]
+        else:
+            permissions = []
+        return [permission() for permission in permissions]
+
+    def get_serializer_context(self):
+        return {'request': self.request, 'action': self.action}
 
 
 class CategoryListView(generics.ListAPIView):
@@ -57,6 +71,23 @@ class ProductViewSet(PermissionMixin,viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CommentViewSet(PermissionMixinComment,viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    # permission_classes = [IsAuthenticated, ]
+
+
+class LikeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def get_serializer_context(self):
+        return {'request': self.request, 'action': self.action}
+
+
 
 
 class ProoductImageView(generics.ListAPIView):

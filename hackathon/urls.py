@@ -19,10 +19,14 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from hackathon import settings
-from main.views import ProductViewSet, CategoryListView
+from main.views import ProductViewSet, CategoryListView, CommentViewSet, LikeViewSet
 
 router = DefaultRouter()
 router.register('products',ProductViewSet)
+router.register('comments', CommentViewSet)
+router.register('likes', LikeViewSet)
+
+
 
 
 urlpatterns = [
