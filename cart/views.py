@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import Cart
 from .serializers import CartSerializer
-from main.permissions import IsAuthorPermission
+from .permissions import IsAuthorPermission
 
 class PermissionMixin:
     def get_permissions(self):
