@@ -9,26 +9,26 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Category, Product, ProductImage, Comment, Like
+from .models import Category, Product, ProductImage, Comment, Like, Favorite
 from .permissions import IsAuthorPermission
 from .serializers import CategorySerializer, ProductSerializer, ProductImageSerializer, CommentSerializer, \
-    LikeSerializer, ParsSerializer
+    LikeSerializer, ParsSerializer, FavoriteSerializer
 from .utils import parsing
 
 
-# class MyPaginationClass(PageNumberPagination):
-#     page_size = 2
-#
-#     def get_paginated_response(self, data):
-#         for i in range(self.page_size):
-#             text = data[i]['description']
-#             data[i]['description'] = text[:15] + '...'
-#             likes = data[i]['likes']
-#             data[i]['likes'] = len(likes)
-#             comments = data[i]['comments']
-#             data[i]['comments'] = len(comments)
-#             # data[i]['recommends'] = len(data[i]['recommends'])
-#         return super().get_paginated_response(data)
+class MyPaginationClass(PageNumberPagination):
+    page_size = 2
+
+    def get_paginated_response(self, data):
+        for i in range(self.page_size):
+            text = data[i]['description']
+            data[i]['description'] = text[:15] + '...'
+            likes = data[i]['likes']
+            data[i]['likes'] = len(likes)
+            comments = data[i]['comments']
+            data[i]['comments'] = len(comments)
+            # data[i]['recommends'] = len(data[i]['recommends'])
+        return super().get_paginated_response(data)
 #
 
 class PermissionMixin:
@@ -64,7 +64,7 @@ class CategoryListView(generics.ListAPIView):
 class ProductViewSet(PermissionMixin,viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    # pagination_class = MyPaginationClass
+    pagination_class = MyPaginationClass
 
 
     @action(detail=False, methods=['get'])
@@ -122,3 +122,19 @@ class ProoductImageView(generics.ListAPIView):
 
     def get_serializer_context(self):
         return {'request': self.request}
+
+
+class FavoriteListView(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = Favorite.objects.all()
+    serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def get_queryset(self):
+        query = self.request.user
+        queryset = Favorite.objects.filter(user=query, favorite=True)
+        return queryset
+
+    def get_serializer_context(self):
+        return {'request': self.request, 'action': self.action}
+
+

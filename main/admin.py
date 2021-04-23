@@ -4,6 +4,9 @@ from main.models import *
 
 
 admin.site.register(Category)
+admin.site.register(Comment)
+admin.site.register(Like)
+
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
@@ -13,3 +16,4 @@ class ProductImageInline(admin.TabularInline):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductImageInline, ]
+

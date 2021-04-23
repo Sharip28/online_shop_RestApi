@@ -67,3 +67,12 @@ class Like(models.Model):
 class ProductImage(models.Model):
     image = models.ImageField(upload_to='products', blank=True, default='default.png')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='favorites')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='favorites')
+    favorite = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ('product', )

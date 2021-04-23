@@ -20,7 +20,7 @@ from rest_framework.routers import DefaultRouter
 
 from cart.views import CartViewSet
 from hackathon import settings
-from main.views import ProductViewSet, CategoryListView, CommentViewSet, LikeViewSet, ParsingView
+from main.views import ProductViewSet, CategoryListView, CommentViewSet, LikeViewSet, ParsingView, FavoriteListView
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -44,6 +44,7 @@ router.register('products',ProductViewSet)
 router.register('comments', CommentViewSet)
 router.register('likes', LikeViewSet)
 router.register('cart', CartViewSet)
+router.register('favorites', FavoriteListView)
 
 
 
