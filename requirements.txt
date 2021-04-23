@@ -4,3 +4,6 @@ Pillow==7.1
 djangorestframework==3.11
 python-decouple
 drf-yasg
+beautifulsoup4==4.9.3
+bs4==0.0.1
+lxml==4.6.3

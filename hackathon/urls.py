@@ -20,7 +20,7 @@ from rest_framework.routers import DefaultRouter
 
 from cart.views import CartViewSet
 from hackathon import settings
-from main.views import ProductViewSet, CategoryListView, CommentViewSet, LikeViewSet
+from main.views import ProductViewSet, CategoryListView, CommentViewSet, LikeViewSet, ParsingView
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -55,6 +55,8 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('v1/api/categories/',CategoryListView.as_view()),
     path('v1/api/',include(router.urls)),
+    path('v1/api/parsing/', ParsingView.as_view()),
+
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]

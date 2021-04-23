@@ -140,3 +140,7 @@ class LikeSerializer(serializers.ModelSerializer):
         return representation
 
 
+class ParsSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=255)
+    photo = serializers.CharField(max_length=255)
+    price = serializers.CharField(max_length=100)

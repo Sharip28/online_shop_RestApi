@@ -4,6 +4,7 @@ from django.shortcuts import render
 # Create your views here.
 from rest_framework import generics, viewsets, status, mixins
 from rest_framework.decorators import api_view, action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,8 +12,24 @@ from rest_framework.views import APIView
 from .models import Category, Product, ProductImage, Comment, Like
 from .permissions import IsAuthorPermission
 from .serializers import CategorySerializer, ProductSerializer, ProductImageSerializer, CommentSerializer, \
-    LikeSerializer
+    LikeSerializer, ParsSerializer
+from .utils import parsing
 
+
+# class MyPaginationClass(PageNumberPagination):
+#     page_size = 2
+#
+#     def get_paginated_response(self, data):
+#         for i in range(self.page_size):
+#             text = data[i]['description']
+#             data[i]['description'] = text[:15] + '...'
+#             likes = data[i]['likes']
+#             data[i]['likes'] = len(likes)
+#             comments = data[i]['comments']
+#             data[i]['comments'] = len(comments)
+#             # data[i]['recommends'] = len(data[i]['recommends'])
+#         return super().get_paginated_response(data)
+#
 
 class PermissionMixin:
     def get_permissions(self):
@@ -47,6 +64,8 @@ class CategoryListView(generics.ListAPIView):
 class ProductViewSet(PermissionMixin,viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    # pagination_class = MyPaginationClass
+
 
     @action(detail=False, methods=['get'])
     def search(self, request, pk=None):
@@ -77,6 +96,13 @@ class CommentViewSet(PermissionMixinComment,viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     # permission_classes = [IsAuthenticated, ]
+
+
+class ParsingView(APIView):
+    def get(self, request):
+        dict_ = parsing()
+        serializer = ParsSerializer(instance=dict_, many=True)
+        return Response(serializer.data)
 
 
 class LikeViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
