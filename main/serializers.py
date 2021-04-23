@@ -67,15 +67,35 @@ class ProductSerializer(serializers.ModelSerializer):
         return instance
 
     def to_representation(self, instance):
-        representation = super(ProductSerializer,self).to_representation(instance)
+        representation = super(ProductSerializer, self).to_representation(instance)
         representation['images'] = ProductImageSerializer(instance.images.all(),
                                                          many=True,context=self.context).data
+        comments = CommentSerializer(instance.comments.all(), many=True).data
+        likes = LikeSerializer(instance.likes.filter(like=True), many=True, context=self.context).data
+        # representation['comments'] = len(comments)
+        representation['likes'] = len(likes)
         representation['comments'] = CommentSerializer(instance.comments.all(), many=True).data
-        representation['likes'] = len(LikeSerializer(instance.likes.filter(like=True), many=True, context=self.context).data)
 
+        # representation['likes'] = LikeSerializer(instance.likes.filter(like=True), many=True, context=self.context).data
 
         return representation
 
+    # def to_representation(self, instance):
+    #     representation = super(ProductSerializer, self).to_representation(instance)
+    #     action = self.context.get('action')
+    #
+    #     representation['images'] = ProductImageSerializer(instance.images.all(),
+    #                                                      many=True,context=self.context).data
+    #     comments = CommentSerializer(instance.comments.all(), many=True).data
+    #     likes = LikeSerializer(instance.likes.filter(like=True), many=True, context=self.context).data
+    #     if action == 'list':
+    #         representation['comments'] = len(comments)
+    #         representation['likes'] = len(likes)
+    #     if action == 'detail':
+    #         representation['comments'] = CommentSerializer(instance.comments.all(), many=True).data
+    #         representation['likes'] = LikeSerializer(instance.likes.filter(like=True), many=True, context=self.context).data
+    #
+    #     return representation
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.email')
@@ -112,5 +132,11 @@ class LikeSerializer(serializers.ModelSerializer):
         like.like = True if like.like is False else False
         like.save()
         return like
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['like'] = instance.like
+        representation['user'] = instance.user.email
+        return representation
 
 

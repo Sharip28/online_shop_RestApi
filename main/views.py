@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Category, Product, ProductImage, Comment, Like, Review
+from .models import Category, Product, ProductImage, Comment, Like
 from .permissions import IsAuthorPermission
 from .serializers import CategorySerializer, ProductSerializer, ProductImageSerializer, CommentSerializer, \
     LikeSerializer

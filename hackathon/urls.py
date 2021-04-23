@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+from cart.views import CartViewSet
 from hackathon import settings
 from main.views import ProductViewSet, CategoryListView, CommentViewSet, LikeViewSet
 
@@ -25,6 +26,8 @@ router = DefaultRouter()
 router.register('products',ProductViewSet)
 router.register('comments', CommentViewSet)
 router.register('likes', LikeViewSet)
+router.register('cart', CartViewSet)
+
 
 
 
