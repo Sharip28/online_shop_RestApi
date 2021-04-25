@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 
 from account.models import MyUser
 from account.utils import send_activation_email
@@ -59,3 +60,35 @@ class LoginSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class CreateNewPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(min_length=6, required=True)
+    password_confirmation = serializers.CharField(min_length=6, required=True)
+
+    def validate_email(self, email):
+        if not MyUser.objects.filter(email=email).exists():
+            raise serializers.ValidationError('User with given email does not exist')
+        return email
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        user = get_object_or_404(MyUser, email=email)
+        password = attrs.get('password')
+        password_confirmation = attrs.get('password_confirmation')
+        if password != password_confirmation:
+            raise serializers.ValidationError('Passwords do not match')
+        return attrs
+
+    def save(self, **kwargs):
+        data = self.validated_data
+        email = data.get('email')
+        password = data.get('password')
+        try:
+            user = MyUser.objects.get(email=email, is_active=True)
+        except:
+            raise serializers.ValidationError('User not found')
+        user.set_password(password)
+        user.save()
+        return user

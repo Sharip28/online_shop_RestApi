@@ -11,3 +11,17 @@ def send_activation_email(email, activation_code):
         [email, ],
         fail_silently=False
     )
+
+
+def send_activation_code(email, activation_code):
+    activation_url = f'http://localhost:8000/v1/api/account/activate/{activation_code}'
+    message = f"""
+    Reset your password.
+    Activation Link: {activation_url}"""
+    send_mail(
+        'Online Shop Activation',
+        message,
+        'admin@gmail.com',
+        [email, ],
+        fail_silently=False
+    )
